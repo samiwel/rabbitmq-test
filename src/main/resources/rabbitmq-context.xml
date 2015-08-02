@@ -6,12 +6,25 @@
            http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <rabbit:connection-factory id="connectionFactory"/>
+    <rabbit:connection-factory id="connectionFactory"
+	host="localhost" port="5672" username="guest" password="guest" />
 
     <rabbit:template id="amqpTemplate" connection-factory="connectionFactory"/>
 
     <rabbit:admin connection-factory="connectionFactory"/>
 
     <rabbit:queue name="myqueue"/>
+    
+    <rabbit:listener-container connection-factory="connectionFactory" auto-startup="true">
+    	<rabbit:listener ref="myQueueListener" queue-names="myqueue" method="handle" />
+    </rabbit:listener-container>
+    
+    <rabbit:direct-exchange name="myExchange">
+    	<rabbit:bindings>
+    		<rabbit:binding queue="myqueue" key="mykey" />
+    	</rabbit:bindings>
+    </rabbit:direct-exchange>
+    
+    <bean id="myQueueListener" class="listeners.QueueListener" lazy-init="false"/>
 
 </beans>
